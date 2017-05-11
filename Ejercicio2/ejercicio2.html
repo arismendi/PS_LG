@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Prueba de c&oacutedigo Logtrust: Ejercicio 2 </title>
+    <style>
+        body {
+            margin-top: 30px;
+            margin-left: 40px;
+        }
+    </style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script type="text/javascript">
+        var data1, data2, data3;
+        $.ajax({
+            url: 'http://s3.amazonaws.com/logtrust-static/test/test/data1.json',
+            type: 'GET',
+            async: true,
+            dataType: "json",
+            success: function (data) {
+                data1 = data;
+            }
+        });
+        $.ajax({
+            url: 'http://s3.amazonaws.com/logtrust-static/test/test/data2.json',
+            type: 'GET',
+            async: true,
+            dataType: "json",
+            success: function (data) {
+                data2 = data;
+            }
+        });
+        $.ajax({
+            url: 'http://s3.amazonaws.com/logtrust-static/test/test/data3.json',
+            type: 'GET',
+            async: true,
+            dataType: "json",
+            success: function (data) {
+                data3 = data;
+                plot_categories(data1, data2, data3);
+            }
+        });
+        function plot_categories(data, data2, data3) {
+            var normalized = new Array();
+            var norm2, norm3, dateTemp, catTemp, pos;
+            var cat1 = new Array();
+            var cat2 = new Array();
+            var cat3 = new Array();
+            var cat4 = new Array();
+            var cat5 = new Array();
+            var regExDate = /\d{4}-\d{2}-\d{2}/;
+            var regExCat = /#cat \d{1}#/i;
+
+            for (i = 0; i < data.length; i++) {
+                dateTemp = new Date(data[i].d);
+                dateTemp.setHours(0, 0, 0, 0);
+                catTemp = data[i].cat.toUpperCase();
+                pos = normalized.findIndex(el => el[0].getTime() == dateTemp.getTime() && el[2] == data[i].cat.toUpperCase())
+                if (pos != -1) {
+                    normalized[pos][1] += data[i].value;
+                }
+                else
+                    normalized.push([dateTemp, data[i].value, catTemp]);
+            }
+
+            for (i = 0; i < data2.length; i++) {
+                dateTemp = new Date(data2[i].myDate);
+                dateTemp.setHours(0, 0, 0, 0);
+                catTemp = data2[i].categ.toUpperCase();
+                pos = normalized.findIndex(el => el[0].getTime() == dateTemp.getTime() && el[2] == catTemp)
+                if (pos != -1) {
+                    normalized[pos][1] += data2[i].val;
+                }
+                else
+                    normalized.push([dateTemp, data2[i].val, catTemp]);
+            }
+
+            for (i = 0; i < data3.length; i++) {
+                dateTemp = new Date(data3[i].raw.match(regExDate)[0]);
+                dateTemp.setHours(0, 0, 0, 0);
+                catTemp = data3[i].raw.match(regExCat)[0];
+                catTemp = catTemp.substring(1, 6).toUpperCase();
+                pos = normalized.findIndex(el => el[0].getTime() == dateTemp.getTime() && el[2] == catTemp)
+                if (pos != -1) {
+                    normalized[pos][1] += data3[i].val;
+                }
+                else
+                    normalized.push([dateTemp, data3[i].val, catTemp]);
+            }
+
+            cat1 = normalized.filter(function (d) { return d[2] == 'CAT 1'; })
+            cat1 = cat1.slice(1, -1);
+            cat1.sort(function (a, b) {
+                if (a[0].getTime() > b[0].getTime()) {
+                    return 1;
+                }
+                if (a[0].getTime() < b[0].getTime()) {
+                    return -1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+            for (i = 0; i < cat1.length; i++) {
+                dateTemp = Date.UTC(cat1[i][0].getYear(), cat1[i][0].getMonth(), cat1[i][0].getDate());
+                cat1[i] = [dateTemp, cat1[i][1]];
+            }
+            var cat1Total = 0;
+            cat1.forEach(function (element) { cat1Total += element[1]; });
+
+            cat2 = normalized.filter(function (d) { return d[2] == 'CAT 2'; })
+            cat2 = cat2.slice(1, -1);
+            cat2.sort(function (a, b) {
+                if (a[0].getTime() > b[0].getTime()) {
+                    return 1;
+                }
+                if (a[0].getTime() < b[0].getTime()) {
+                    return -1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+            for (i = 0; i < cat2.length; i++) {
+                dateTemp = Date.UTC(cat2[i][0].getYear(), cat2[i][0].getMonth(), cat2[i][0].getDate());
+                cat2[i] = [dateTemp, cat2[i][1]];
+            }
+            var cat2Total = 0;
+            cat2.forEach(function (element) { cat2Total += element[1]; });
+
+            cat3 = normalized.filter(function (d) { return d[2] == 'CAT 3'; })
+            cat3 = cat3.slice(1, -1);
+            cat3.sort(function (a, b) {
+                if (a[0].getTime() > b[0].getTime()) {
+                    return 1;
+                }
+                if (a[0].getTime() < b[0].getTime()) {
+                    return -1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+            for (i = 0; i < cat3.length; i++) {
+                dateTemp = Date.UTC(cat3[i][0].getYear(), cat3[i][0].getMonth(), cat3[i][0].getDate());
+                cat3[i] = [dateTemp, cat3[i][1]];
+            }
+            var cat3Total = 0;
+            cat3.forEach(function (element) { cat3Total += element[1]; });
+
+            cat4 = normalized.filter(function (d) { return d[2] == 'CAT 4'; })
+            cat4 = cat4.slice(1, -1);
+            cat4.sort(function (a, b) {
+                if (a[0].getTime() > b[0].getTime()) {
+                    return 1;
+                }
+                if (a[0].getTime() < b[0].getTime()) {
+                    return -1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+            for (i = 0; i < cat4.length; i++) {
+                dateTemp = Date.UTC(cat4[i][0].getYear(), cat4[i][0].getMonth(), cat4[i][0].getDate());
+                cat4[i] = [dateTemp, cat4[i][1]];
+            }
+            var cat4Total = 0;
+            cat4.forEach(function (element) { cat4Total += element[1]; });
+
+            var total = cat1Total + cat2Total + cat3Total + cat4Total;
+            var cat1Rate = cat1Total / total;
+            var cat2Rate = cat2Total / total;
+            var cat3Rate = cat3Total / total;
+            var cat4Rate = cat4Total / total;
+
+            // draw line chart
+            $('#container').highcharts({
+                title: {
+                    text: 'Ejercicio 2'
+                },
+                subtitle: {
+                    text: 'Datos por fecha'
+                },
+                xAxis: {
+                    type: 'datetime',
+                    formatter: function () {
+                        var monthStr = Highcharts.dateFormat('%b', this.value);
+                        var firstLetter = monthStr.substring(0, 1);
+                        return firstLetter;
+                    },
+                    title: {
+                        text: null
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: null
+                    }
+                },
+                series: [{
+                    name: 'CAT 1',
+                    data: cat1
+                }
+                    ,
+                {
+                    name: 'CAT 2',
+                    data: cat2
+                }
+                    ,
+                {
+                    name: 'CAT 3',
+                    data: cat3
+                }
+                    ,
+                {
+                    name: 'CAT 4',
+                    data: cat4
+                }
+                ]
+            });
+
+            // Start Pie
+            $('#container2').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    type: 'pie'
+                },
+                title: {
+                    text: null
+                },
+                subtitle: {
+                    text: 'Valores totales por categorías'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            //format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Categorías',
+                    colorByPoint: true,
+                    data: [{
+                        name: 'CAT 1: ' + (cat1Rate*100).toFixed(2) + '% (Total: ' + cat1Total.toFixed(2) + ')',
+                        y: cat1Rate
+                    }, {
+                        name: 'CAT 2: ' + (cat2Rate*100).toFixed(2) + '% (Total: ' + cat2Total.toFixed(2) + ')',
+                        y: cat2Rate,
+                        sliced: true,
+                        selected: true
+                    }, {
+                        name: 'CAT 3: ' + (cat3Rate*100).toFixed(2) + '% (Total: ' + cat3Total.toFixed(2) + ')',
+                        y: cat3Rate
+                    }, {
+                        name: 'CAT 4: ' + (cat4Rate*100).toFixed(2) + '% (Total: ' + cat4Total.toFixed(2) + ')',
+                        y: cat4Rate
+                    }]
+                }]
+            });
+            // End Pie
+        }
+
+        function add(a, b) {
+            return a + b;
+        }
+    </script>
+</head>
+
+<body>
+    <div id="container" style="height: 400px"></div>
+    <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+</body>
+
+</html>
