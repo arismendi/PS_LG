@@ -1,4 +1,4 @@
-Prueba de código LG:
+Prueba de código PS_LG:
 
 En el ejercicio 1 se presenta la función "classify" que recibe una lista de números e
 indica para cada número si es abúndate, perfecto o deficiente.
